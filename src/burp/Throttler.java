@@ -1,4 +1,7 @@
 package burp;
+import burp.IBurpExtenderCallbacks;
+import burp.IHttpListener;
+import burp.IHttpRequestResponse;
 
 import java.util.Date;
 import java.util.HashMap;

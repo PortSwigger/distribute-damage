@@ -1,4 +1,5 @@
 package burp;
+import burp.*;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class BurpExtender implements IBurpExtender {
     private static final String name = "distributeDamage";
-    private static final String version = "0.70";
+    private static final String version = "0.71e";
     public static final boolean clientSideOnly = false;
     public static HashSet<String> scanned = new HashSet<>();
 
