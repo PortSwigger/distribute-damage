@@ -8,4 +8,4 @@ ProOnly: True
 Author: James 'albinowax' Kettle, PortSwigger Web Security
 ShortDescription: Evenly distributes scanner load across targets.
 EntryPoint: build/libs/distribute-damage-all.jar
-BuildCommand: gradle -PburpJar=$BURP_JAR fatJar
+BuildCommand: gradle fatJar
