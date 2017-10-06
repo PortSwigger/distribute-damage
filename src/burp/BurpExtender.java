@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class BurpExtender implements IBurpExtender {
     private static final String name = "distributeDamage";
-    private static final String version = "0.71e";
+    private static final String version = "0.71f";
     public static final boolean clientSideOnly = false;
     public static HashSet<String> scanned = new HashSet<>();
 
@@ -367,6 +367,7 @@ class ExtractToFile extends SpiderDripFeeder {
         HashMap<String, ArrayDeque<WorkTarget>> itemsByHost = splitItemsByHost();
         try {
             to_spider = new PrintWriter("to_spider", "UTF-8");
+            Utilities.out("File will be created at "+System.getProperty("user.dir")+"/to_spider");
             distributeWork(itemsByHost);
         } catch (FileNotFoundException e) {
             Utilities.err(e.getMessage());
