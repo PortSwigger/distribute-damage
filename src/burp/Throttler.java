@@ -9,6 +9,11 @@ import java.util.concurrent.locks.Lock;
 
 class Throttler implements IHttpListener {
     private HashMap<String, Long> locks = new HashMap<>();
+    String instanceCacheBust;
+
+    Throttler() {
+        instanceCacheBust = Utilities.generateCanary();
+    }
 
     public void processHttpMessage(int toolFlag, boolean messageIsRequest, IHttpRequestResponse messageInfo) {
         Lock spiderLock = null;
@@ -17,6 +22,10 @@ class Throttler implements IHttpListener {
             spiderLock.lock();
         }
         try {
+            if(messageIsRequest) {
+                addCacheBuster(messageInfo);
+            }
+
             if (messageIsRequest && Utilities.THROTTLED_COMPONENTS.contains(toolFlag)) {
                 String hostname = messageInfo.getHttpService().getHost();
                 delayRequest(hostname);
@@ -28,6 +37,11 @@ class Throttler implements IHttpListener {
             }
         }
 
+    }
+
+    private void addCacheBuster(IHttpRequestResponse messageInfo) {
+        IParameter cacheBuster = burp.Utilities.helpers.buildParameter(instanceCacheBust, "1", IParameter.PARAM_URL);
+        messageInfo.setRequest(Utilities.helpers.addParameter(messageInfo.getRequest(), cacheBuster));
     }
 
 

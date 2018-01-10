@@ -19,6 +19,10 @@ public class Utilities {
     public static IBurpExtenderCallbacks callbacks;
     public static IExtensionHelpers helpers;
 
+    private static final String CHARSET = "0123456789abcdefghijklmnopqrstuvwxyz"; // ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    private static final String START_CHARSET = "ghijklmnopqrstuvwxyz";
+    static Random rnd = new Random();
+
 
     public Utilities(final IBurpExtenderCallbacks incallbacks, long throttle) {
         this.throttle = throttle;
@@ -29,6 +33,19 @@ public class Utilities {
         Integer[] to_throttle = {IBurpExtenderCallbacks.TOOL_TARGET, IBurpExtenderCallbacks.TOOL_SPIDER, IBurpExtenderCallbacks.TOOL_SCANNER, IBurpExtenderCallbacks.TOOL_INTRUDER, IBurpExtenderCallbacks.TOOL_SEQUENCER, IBurpExtenderCallbacks.TOOL_EXTENDER};
         Collections.addAll(THROTTLED_COMPONENTS, to_throttle);
 
+    }
+
+    static String generateCanary() {
+        return randomString(4+rnd.nextInt(7)) + Integer.toString(rnd.nextInt(9));
+    }
+
+
+    static String randomString(int len) {
+        StringBuilder sb = new StringBuilder(len);
+        sb.append(START_CHARSET.charAt(rnd.nextInt(START_CHARSET.length())));
+        for (int i = 1; i < len; i++)
+            sb.append(CHARSET.charAt(rnd.nextInt(CHARSET.length())));
+        return sb.toString();
     }
 
     public static void out(String message) {
