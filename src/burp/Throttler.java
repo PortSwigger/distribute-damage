@@ -19,9 +19,6 @@ class Throttler implements IHttpListener {
             spiderLock.lock();
         }
         try {
-            if(messageIsRequest) {
-                addCacheBuster(messageInfo);
-            }
 
             if (messageIsRequest && Utilities.THROTTLED_COMPONENTS.contains(toolFlag)) {
                 String hostname = messageInfo.getHttpService().getHost();
@@ -35,12 +32,6 @@ class Throttler implements IHttpListener {
         }
 
     }
-
-    private void addCacheBuster(IHttpRequestResponse messageInfo) {
-        IParameter cacheBuster = burp.Utilities.helpers.buildParameter(instanceCacheBust, "1", IParameter.PARAM_URL);
-        messageInfo.setRequest(Utilities.helpers.addParameter(messageInfo.getRequest(), cacheBuster));
-    }
-
 
     public void delayRequest(String hostname){
         if (hostname.equals("bwapps") || hostname.equals("labs-linux")) {
