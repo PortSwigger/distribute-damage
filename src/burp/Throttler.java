@@ -40,7 +40,7 @@ class Throttler implements IHttpListener {
 
         synchronized(hostname.intern()) {
             if (locks.containsKey(hostname)) {
-                long waitFor = Utilities.throttle - (new Date().getTime() - locks.get(hostname));
+                long waitFor = Utilities.globalSettings.getInt("throttle") - (new Date().getTime() - locks.get(hostname));
                 if (waitFor > 0) {
                     try {
                         Thread.sleep(waitFor);

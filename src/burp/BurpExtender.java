@@ -10,7 +10,7 @@ import java.util.*;
 import java.io.PrintWriter;
 import java.util.List;
 
-import javax.swing.JMenuItem;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.util.concurrent.locks.Lock;
@@ -24,16 +24,13 @@ public class BurpExtender implements IBurpExtender {
 
     @Override
     public void registerExtenderCallbacks(final IBurpExtenderCallbacks callbacks) {
-        String configuredThrottle = callbacks.saveConfigAsJson("scanner.active_scanning_engine.throttle_interval").split(":")[3].split("[\\r\\n]")[0];
-
-        new Utilities(callbacks, Long.parseLong(configuredThrottle));
+        new Utilities(callbacks);
+        Utilities.out("Loaded " + name + " v" + version );
+        SwingUtilities.invokeLater(new ConfigMenu());
+        Utilities.globalSettings.printSettings();
         callbacks.setExtensionName(name);
-
         callbacks.registerHttpListener(new Throttler());
         callbacks.registerContextMenuFactory(new OfferDistributedScan(callbacks));
-
-        Utilities.out("Loaded " + name + " v" + version + " with throttle set to "+Utilities.throttle + "ms");
-        Utilities.out("To change the throttle, edit it in Scanner->Options, untick the 'Throttle between requests' checkbox, then reload this extension.");
     }
 }
 
@@ -200,6 +197,11 @@ class ScannerDripFeeder extends DamageDistributer {
         Collections.shuffle(Arrays.asList(requests));
 
 
+        HashSet<String> mimetypes = new HashSet<>();
+        mimetypes.addAll(Arrays.asList(Utilities.globalSettings.getString("header target mime types").split(",")));
+        HashSet<String> statuscodes = new HashSet<>();
+        statuscodes.addAll(Arrays.asList(Utilities.globalSettings.getString("header target status codes").split(",")));
+
         HashMap<String, ArrayDeque<WorkTarget>> scanItemsByHost = new HashMap<>();
         int i = 0;
         for (IHttpRequestResponse request : requests) {
@@ -219,13 +221,14 @@ class ScannerDripFeeder extends DamageDistributer {
 
             // only scan 'extra insertion points' once per host/status-code/mimetype
             byte[] response = request.getResponse();
+
             if (response != null) {
                 IResponseInfo respInfo = callbacks.getHelpers().analyzeResponse(response);
                 String mime_type = respInfo.getStatedMimeType();
                 request_id += respInfo.getStatusCode() + mime_type;
-                if (mime_type.equals("HTML") && respInfo.getStatusCode() == 200 && !BurpExtender.clientSideOnly) {
-                    suitableForPerHostScans = true;
 
+                if (mimetypes.contains(mime_type) && statuscodes.contains(String.valueOf(respInfo.getStatusCode()))) {
+                    suitableForPerHostScans = true;
                     if (!BurpExtender.scanned.contains(request_id+"Host")) {
                         BurpExtender.scanned.add(request_id+"Host");
                         params.addAll(Utilities.getExtraInsertionPoints(request.getRequest()));
@@ -239,7 +242,7 @@ class ScannerDripFeeder extends DamageDistributer {
                 byte type = param.getType();
                 String param_id;
                 if (type == IParameter.PARAM_COOKIE) {
-                    if (!suitableForPerHostScans) {
+                    if (!suitableForPerHostScans || !Utilities.globalSettings.getBoolean("scan cookies")) {
                         continue;
                     }
                     param_id = request_id+'_'+param.getName();
@@ -248,7 +251,7 @@ class ScannerDripFeeder extends DamageDistributer {
                     param_id = request_id+'_'+param_names+param.getType()+'_'+param.getName(); // + info.getUrl().getPath();
                 }
 
-                if (param.getName().length() > 31) {
+                if (param.getName().length() > Utilities.globalSettings.getInt("max param length")) {
                     continue;
                 }
 
