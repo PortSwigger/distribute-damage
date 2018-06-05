@@ -2,8 +2,8 @@ Uuid: 543ab7a08d954390bd1a5f4253d3763b
 ExtensionType: 1
 Name: Distribute Damage
 RepoName: distribute-damage
-ScreenVersion: 0.71e
-SerialVersion: 4
+ScreenVersion: 0.71g
+SerialVersion: 5
 MinPlatformVersion: 0
 ProOnly: True
 Author: James 'albinowax' Kettle, PortSwigger Web Security
