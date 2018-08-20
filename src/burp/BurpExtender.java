@@ -213,7 +213,11 @@ class ScannerDripFeeder extends DamageDistributer {
 
             String host = request.getHttpService().getHost();
             IRequestInfo info = callbacks.getHelpers().analyzeRequest(request);
-            String request_id = host + info.getContentType();
+            String request_id = host;
+            if (Utilities.globalSettings.getBoolean("include content type in key")) {
+                request_id += info.getContentType();
+            }
+
             List<IParameter> params = new ArrayList<>();
             if (Utilities.globalSettings.getBoolean("scan params")) {
                 params.addAll(info.getParameters());

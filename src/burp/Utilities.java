@@ -63,6 +63,7 @@ class ConfigurableSettings {
         put("scan cookies", true);
         put("scan headers", true);
         put("target headers", "User-Agent,Referer");
+        put("include content type in key", true);
         put("header target mime types", "HTML,JSON");
         put("header target status codes", "200,302,307");
 
