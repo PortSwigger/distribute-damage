@@ -239,7 +239,7 @@ class ScannerDripFeeder extends DamageDistributer {
 //                    }
 //                }
 //            }
-            // fixme just bloody scan it
+
             params.addAll(Utilities.getExtraInsertionPoints(request.getRequest()));
 
             List<int[]> insertionPoints = new ArrayList<>();

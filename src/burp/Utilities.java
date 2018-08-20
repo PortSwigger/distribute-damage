@@ -531,7 +531,8 @@ public class Utilities {
         }
 
         if (globalSettings.getBoolean("scan root folder") && folderEnds.size() != 0) {
-            params.add(new PartialParam("root", pathStart+1, folderEnds.get(0)));
+            String base = helpers.bytesToString(Arrays.copyOfRange(request, pathStart+1, folderEnds.get(0)));
+            params.add(new PartialParam("folder "+base, pathStart+1, folderEnds.get(0)));
         }
 
         if (globalSettings.getBoolean("scan other folders") && folderEnds.size() != 0) {
@@ -540,7 +541,8 @@ public class Utilities {
             while (iterator.hasNext()) {
                 Utilities.out("Launching folder scan");
                 Integer folderEnd = iterator.next();
-                params.add(new PartialParam("folder "+folderEnd, lastStart+1, folderEnd));
+                String base = helpers.bytesToString(Arrays.copyOfRange(request, lastStart+1, folderEnd));
+                params.add(new PartialParam("folder "+base, lastStart+1, folderEnd));
                 lastStart = folderEnd;
             }
         }
