@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class BurpExtender implements IBurpExtender {
     private static final String name = "distributeDamage";
-    private static final String version = "0.71g";
+    private static final String version = "0.72";
     public static final boolean clientSideOnly = false;
     public static HashSet<String> scanned = new HashSet<>();
 
@@ -214,27 +214,33 @@ class ScannerDripFeeder extends DamageDistributer {
             String host = request.getHttpService().getHost();
             IRequestInfo info = callbacks.getHelpers().analyzeRequest(request);
             String request_id = host + info.getContentType();
-            List<IParameter> params = info.getParameters();
+            List<IParameter> params = new ArrayList<>();
+            if (Utilities.globalSettings.getBoolean("scan params")) {
+                params.addAll(info.getParameters());
+            }
+
             String param_names = params.stream().map(IParameter::getName).collect(Collectors.toList()).toString();
 
-            boolean suitableForPerHostScans = false;
+            boolean suitableForPerHostScans = true;
 
             // only scan 'extra insertion points' once per host/status-code/mimetype
             byte[] response = request.getResponse();
 
-            if (response != null) {
-                IResponseInfo respInfo = callbacks.getHelpers().analyzeResponse(response);
-                String mime_type = respInfo.getStatedMimeType();
-                request_id += respInfo.getStatusCode() + mime_type;
-
-                if (mimetypes.contains(mime_type) && statuscodes.contains(String.valueOf(respInfo.getStatusCode()))) {
-                    suitableForPerHostScans = true;
-                    if (!BurpExtender.scanned.contains(request_id+"Host")) {
-                        BurpExtender.scanned.add(request_id+"Host");
-                        params.addAll(Utilities.getExtraInsertionPoints(request.getRequest()));
-                    }
-                }
-            }
+//            if (response != null) {
+//                IResponseInfo respInfo = callbacks.getHelpers().analyzeResponse(response);
+//                String mime_type = respInfo.getStatedMimeType();
+//                request_id += respInfo.getStatusCode() + mime_type;
+//
+//                if (mimetypes.contains(mime_type) && statuscodes.contains(String.valueOf(respInfo.getStatusCode()))) {
+//                    suitableForPerHostScans = true;
+//                    if (!BurpExtender.scanned.contains(request_id+"Host")) {
+//                        BurpExtender.scanned.add(request_id+"Host");
+//                        params.addAll(Utilities.getExtraInsertionPoints(request.getRequest()));
+//                    }
+//                }
+//            }
+            // fixme just bloody scan it
+            params.addAll(Utilities.getExtraInsertionPoints(request.getRequest()));
 
             List<int[]> insertionPoints = new ArrayList<>();
             for (IParameter param: params) {
@@ -245,6 +251,9 @@ class ScannerDripFeeder extends DamageDistributer {
                     if (!suitableForPerHostScans || !Utilities.globalSettings.getBoolean("scan cookies")) {
                         continue;
                     }
+                    param_id = request_id+'_'+param.getName();
+                }
+                else if (type == PartialParam.PARAM_PATH && suitableForPerHostScans) {
                     param_id = request_id+'_'+param.getName();
                 }
                 else {

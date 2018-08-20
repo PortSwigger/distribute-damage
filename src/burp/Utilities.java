@@ -56,7 +56,10 @@ class ConfigurableSettings {
         settings = new LinkedHashMap<>();
         put("throttle", 1000);
         put("max param length", 30);
-        put("scan path", true);
+        put("scan params", true);
+        put("scan path end", true);
+        put("scan root folder", true);
+        put("scan other folders", false);
         put("scan cookies", true);
         put("scan headers", true);
         put("target headers", "User-Agent,Referer");
@@ -507,6 +510,8 @@ public class Utilities {
         int end = getBodyStart(request);
         int i = 0;
         while(i < end && request[i++] != ' ') {} // walk to the url start
+        int pathStart = i;
+        ArrayList<Integer> folderEnds = new ArrayList<>();
         while(i < end) {
             byte c = request[i];
             if (c == ' ' ||
@@ -514,12 +519,32 @@ public class Utilities {
                     c == '#') {
                 break;
             }
+
+            if (c == '/' && i != pathStart) {
+                folderEnds.add(i);
+            }
             i++;
         }
 
-        if (globalSettings.getBoolean("scan path")) {
+        if (globalSettings.getBoolean("scan path end")) {
             params.add(new PartialParam("path", i, i));
         }
+
+        if (globalSettings.getBoolean("scan root folder") && folderEnds.size() != 0) {
+            params.add(new PartialParam("root", pathStart+1, folderEnds.get(0)));
+        }
+
+        if (globalSettings.getBoolean("scan other folders") && folderEnds.size() != 0) {
+            Iterator<Integer> iterator = folderEnds.iterator();
+            int lastStart = iterator.next();
+            while (iterator.hasNext()) {
+                Utilities.out("Launching folder scan");
+                Integer folderEnd = iterator.next();
+                params.add(new PartialParam("folder "+folderEnd, lastStart+1, folderEnd));
+                lastStart = folderEnd;
+            }
+        }
+
 
         while(request[i++] != '\n' && i < end) {}
 
@@ -557,6 +582,7 @@ class PartialParam implements IParameter {
     int valueStart, valueEnd;
     String name;
 
+    static final byte PARAM_PATH = 9;
     public PartialParam(String name, int valueStart, int valueEnd) {
         this.name = name;
         this.valueStart = valueStart;
@@ -565,7 +591,7 @@ class PartialParam implements IParameter {
 
     @Override
     public byte getType() {
-        return IParameter.PARAM_COOKIE;
+        return PARAM_PATH;
     }
 
     @Override
