@@ -19,7 +19,6 @@ class Throttler implements IHttpListener {
             spiderLock.lock();
         }
         try {
-
             if (messageIsRequest && Utilities.THROTTLED_COMPONENTS.contains(toolFlag)) {
                 String hostname = messageInfo.getHttpService().getHost();
                 delayRequest(hostname);
@@ -30,7 +29,6 @@ class Throttler implements IHttpListener {
                 spiderLock.unlock();
             }
         }
-
     }
 
     public void delayRequest(String hostname){

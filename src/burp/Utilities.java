@@ -57,7 +57,8 @@ class ConfigurableSettings {
         put("throttle", 1000);
         put("max param length", 30);
         put("scan params", true);
-        put("scan path end", true);
+        put("scan path start", false);
+        put("scan path end", false);
         put("scan root folder", true);
         put("scan other folders", false);
         put("scan cookies", true);
@@ -527,8 +528,9 @@ public class Utilities {
             i++;
         }
 
-        if (globalSettings.getBoolean("scan path end")) {
-            params.add(new PartialParam("path", i, i));
+
+        if (globalSettings.getBoolean("scan path start")) {
+            params.add(new PartialParam("pathstart", pathStart+1, pathStart+1));
         }
 
         if (globalSettings.getBoolean("scan root folder") && folderEnds.size() != 0) {
@@ -540,12 +542,15 @@ public class Utilities {
             Iterator<Integer> iterator = folderEnds.iterator();
             int lastStart = iterator.next();
             while (iterator.hasNext()) {
-                Utilities.out("Launching folder scan");
                 Integer folderEnd = iterator.next();
                 String base = helpers.bytesToString(Arrays.copyOfRange(request, lastStart+1, folderEnd));
                 params.add(new PartialParam("folder "+base, lastStart+1, folderEnd));
                 lastStart = folderEnd;
             }
+        }
+
+        if (globalSettings.getBoolean("scan path end")) {
+            params.add(new PartialParam("pathend", i, i));
         }
 
 
