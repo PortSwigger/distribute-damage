@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class BurpExtender implements IBurpExtender {
     private static final String name = "distributeDamage";
-    private static final String version = "0.72";
+    private static final String version = "1.01";
     public static final boolean clientSideOnly = false;
     public static HashSet<String> scanned = new HashSet<>();
 

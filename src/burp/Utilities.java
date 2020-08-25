@@ -55,6 +55,7 @@ class ConfigurableSettings {
     ConfigurableSettings() {
         settings = new LinkedHashMap<>();
         put("throttle", 1000);
+        put("pause all traffic", false);
         put("max param length", 30);
         put("scan params", true);
         put("scan path start", false);

@@ -2,7 +2,7 @@ Uuid: 543ab7a08d954390bd1a5f4253d3763b
 ExtensionType: 1
 Name: Distribute Damage
 RepoName: distribute-damage
-ScreenVersion: 0.71e
+ScreenVersion: 1.01
 SerialVersion: 4
 MinPlatformVersion: 0
 ProOnly: True

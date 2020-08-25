@@ -31,10 +31,23 @@ class Throttler implements IHttpListener {
         }
     }
 
+    private void suspendRequest() {
+        while (Utilities.globalSettings.getBoolean("pause all traffic")) {
+            try {
+                Thread.sleep(Utilities.globalSettings.getInt("throttle"));
+            } catch (java.lang.InterruptedException e) {
+                Utilities.err("Interrupted while sleeping, aborting suspension");
+                return;
+            }
+        }
+    }
+
     public void delayRequest(String hostname){
         if (hostname.equals("bwapps") || hostname.equals("labs-linux")) {
             return;
         }
+
+        suspendRequest();
 
         synchronized(hostname.intern()) {
             if (locks.containsKey(hostname)) {
